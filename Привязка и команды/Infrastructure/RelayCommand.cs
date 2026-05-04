@@ -14,6 +14,7 @@ namespace Привязка_и_команды.Infrastructure
             this.canExecute = canExecute;
         }
 
+
         public event EventHandler CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
