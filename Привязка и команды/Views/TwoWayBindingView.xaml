@@ -1,0 +1,66 @@
+<UserControl x:Class="Привязка_и_команды.Views.TwoWayBindingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:infra="clr-namespace:Привязка_и_команды.Infrastructure">
+
+    <UserControl.Resources>
+        <infra:ThemeToBackgroundConverter x:Key="ThemeToBackgroundConverter"/>
+        <infra:ThemeToForegroundConverter x:Key="ThemeToForegroundConverter"/>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,10">
+            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Margin="0,0,15,0">
+                        <TextBlock FontSize="16" FontWeight="Bold" Text="Редактирование" Margin="0,0,0,10"/>
+                        <TextBlock Text="Имя:"/>
+                        <TextBox Text="{Binding UserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="Рейтинг:" Margin="0,10,0,0"/>
+                        <Slider Minimum="0" Maximum="100" Value="{Binding Rating, Mode=TwoWay}"/>
+                        <TextBlock Text="{Binding Rating, StringFormat=Значение: {0}}" Margin="0,5,0,0"/>
+                        <CheckBox Content="Уведомления" IsChecked="{Binding NotificationsEnabled, Mode=TwoWay}" Margin="0,10"/>
+                        <TextBlock Text="Тема:"/>
+                        <ComboBox ItemsSource="{Binding ThemeOptions}" 
+                                  SelectedItem="{Binding SelectedTheme, Mode=TwoWay}"
+                                  Width="150"/>
+                        <Button Content="Сохранить" Command="{Binding SaveTwoWayCommand}" Margin="0,15,0,0" Width="100"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="1" 
+                            Background="{Binding SelectedTheme, Converter={StaticResource ThemeToBackgroundConverter}}"
+                            BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Padding="10">
+                        <StackPanel>
+                            <TextBlock FontSize="14" FontWeight="Bold" 
+                                       Foreground="{Binding SelectedTheme, Converter={StaticResource ThemeToForegroundConverter}}"
+                                       Text="Текущие данные" Margin="0,0,0,10"/>
+                            <TextBlock Foreground="{Binding SelectedTheme, Converter={StaticResource ThemeToForegroundConverter}}"
+                                       Text="{Binding UserName, StringFormat=Имя: {0}}" Margin="0,3"/>
+                            <TextBlock Foreground="{Binding SelectedTheme, Converter={StaticResource ThemeToForegroundConverter}}"
+                                       Text="{Binding Rating, StringFormat=Рейтинг: {0}}" Margin="0,3"/>
+                            <ProgressBar Value="{Binding Rating}" Margin="0,5,0,10"/>
+                            <TextBlock Foreground="{Binding SelectedTheme, Converter={StaticResource ThemeToForegroundConverter}}"
+                                       Text="{Binding NotificationsEnabled, StringFormat=Уведомления: {0}}" Margin="0,3"/>
+                            <TextBlock Foreground="{Binding SelectedTheme, Converter={StaticResource ThemeToForegroundConverter}}"
+                                       Text="{Binding SelectedTheme, StringFormat=Тема: {0}}" Margin="0,3"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Padding="15">
+                <StackPanel>
+                    <TextBlock FontSize="14" FontWeight="Bold" Text="Прямая TwoWay-привязка" Margin="0,0,0,10"/>
+                    <TextBox x:Name="DirectBox" Text="Введите текст"/>
+                    <TextBox Text="{Binding ElementName=DirectBox, Path=Text, Mode=TwoWay}" Margin="0,10,0,0"/>
+                    <TextBlock Text="{Binding ElementName=DirectBox, Path=Text, StringFormat=Результат: {0}}" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
