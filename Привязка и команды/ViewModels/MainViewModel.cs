@@ -1,15 +1,15 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.ObjectModel;
-using System.Windows.Media;
+using System.Windows.Controls;
+using System.Windows.Data;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Привязка_и_команды.ViewModels
 {
-    // Наследуемся от ObservableObject (даёт INotifyPropertyChanged)
     public partial class MainViewModel : ObservableObject
     {
-        // Автоматически генерирует свойство DefaultInput и поле _defaultInput
+        // ---- Поля для автоматических свойств ([ObservableProperty]) ----
         [ObservableProperty]
         private string defaultInput = "Текст с режимом привязки по умолчанию";
 
@@ -64,7 +64,7 @@ namespace Привязка_и_команды.ViewModels
         [ObservableProperty]
         private int commandCount;
 
-        // Коллекции – можно оставить как есть
+        // ---- Коллекции (инициализируются в конструкторе) ----
         public ObservableCollection<string> ThemeOptions { get; }
         public ObservableCollection<string> TriggerItems { get; }
 
@@ -74,11 +74,11 @@ namespace Привязка_и_команды.ViewModels
             TriggerItems = new ObservableCollection<string> { "Обычный", "Важный", "Критический" };
         }
 
-        // Команды – методы с атрибутом [RelayCommand]
-        // Генератор создаст свойство с именем ResetDefaultCommand (метод + "Command")
+        // ---- Команды (методы с атрибутом [RelayCommand]) ----
         [RelayCommand]
         private void ResetDefault()
         {
+            // Обращаемся к сгенерированным свойствам (DefaultInput, DefaultNote, CommandCount)
             DefaultInput = "Сброшено через команду";
             DefaultNote = "Кнопка использует ICommand";
             CommandCount++;
@@ -115,13 +115,13 @@ namespace Привязка_и_команды.ViewModels
             CommandCount++;
         }
 
-        // Команда с параметром: метод должен принимать параметр object
+        // Команда с параметром (тип object)
         [RelayCommand]
         private void ApplyExplicitBinding(object parameter)
         {
-            if (parameter is System.Windows.Controls.TextBox textBox)
+            if (parameter is TextBox textBox)
             {
-                var expression = textBox.GetBindingExpression(System.Windows.Controls.TextBox.TextProperty);
+                BindingExpression expression = textBox.GetBindingExpression(TextBox.TextProperty);
                 expression?.UpdateSource();
             }
             CommandCount++;
