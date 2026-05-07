@@ -2,203 +2,136 @@ using System;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Input;
-using Привязка_и_команды.Infrastructure;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Привязка_и_команды.ViewModels
 {
-    public class MainViewModel : ViewModelBase
+    public partial class MainViewModel : ObservableObject
     {
+        // ---- Поля для автоматических свойств ([ObservableProperty]) ----
+        [ObservableProperty]
         private string defaultInput = "Текст с режимом привязки по умолчанию";
+
+        [ObservableProperty]
         private string defaultNote = "Сообщение из визуальной модели";
+
+        [ObservableProperty]
         private string userName = "Алексей";
+
+        [ObservableProperty]
         private int rating = 65;
+
+        [ObservableProperty]
         private bool notificationsEnabled = true;
+
+        [ObservableProperty]
         private string selectedTheme = "Светлая";
+
+        [ObservableProperty]
         private string sessionCode = "LR2-001";
+
+        [ObservableProperty]
         private string currentTime = DateTime.Now.ToString("HH:mm:ss");
+
+        [ObservableProperty]
         private int progress = 40;
+
+        [ObservableProperty]
         private string oneWayText = "Источник изменяется только командой";
+
+        [ObservableProperty]
         private string sourceFromTarget = "Введите текст в поле OneWayToSource";
+
+        [ObservableProperty]
         private string updateOnPropertyChanged = "Меняется сразу";
+
+        [ObservableProperty]
         private string updateOnLostFocus = "Меняется после потери фокуса";
+
+        [ObservableProperty]
         private string updateExplicit = "Меняется после команды";
+
+        [ObservableProperty]
         private int triggerLevel = 45;
+
+        [ObservableProperty]
         private bool isDangerMode;
+
+        [ObservableProperty]
         private string selectedTriggerItem = "Обычный";
+
+        [ObservableProperty]
         private int commandCount;
+
+        // ---- Коллекции (инициализируются в конструкторе) ----
+        public ObservableCollection<string> ThemeOptions { get; }
+        public ObservableCollection<string> TriggerItems { get; }
 
         public MainViewModel()
         {
             ThemeOptions = new ObservableCollection<string> { "Светлая", "Контрастная", "Спокойная" };
             TriggerItems = new ObservableCollection<string> { "Обычный", "Важный", "Критический" };
+        }
 
-            ResetDefaultCommand = new RelayCommand(_ =>
-            {
-                DefaultInput = "Сброшено через команду";
-                DefaultNote = "Кнопка использует ICommand";
-                CommandCount++;
-            });
+        // ---- Команды (методы с атрибутом [RelayCommand]) ----
+        [RelayCommand]
+        private void ResetDefault()
+        {
+            // Обращаемся к сгенерированным свойствам (DefaultInput, DefaultNote, CommandCount)
+            DefaultInput = "Сброшено через команду";
+            DefaultNote = "Кнопка использует ICommand";
+            CommandCount++;
+        }
 
-            SaveTwoWayCommand = new RelayCommand(_ =>
-            {
-                DefaultNote = $"Сохранено: {UserName}, рейтинг {Rating}";
-                CommandCount++;
-            });
+        [RelayCommand]
+        private void SaveTwoWay()
+        {
+            DefaultNote = $"Сохранено: {UserName}, рейтинг {Rating}";
+            CommandCount++;
+        }
 
-            GenerateSessionCodeCommand = new RelayCommand(_ =>
-            {
-                SessionCode = "LR2-" + DateTime.Now.ToString("HHmmss");
-                CurrentTime = DateTime.Now.ToString("HH:mm:ss");
-                CommandCount++;
-            });
+        [RelayCommand]
+        private void GenerateSessionCode()
+        {
+            SessionCode = "LR2-" + DateTime.Now.ToString("HHmmss");
+            CurrentTime = DateTime.Now.ToString("HH:mm:ss");
+            CommandCount++;
+        }
 
-            IncreaseProgressCommand = new RelayCommand(_ =>
-            {
-                Progress = Math.Min(100, Progress + 10);
-                OneWayText = $"Прогресс увеличен до {Progress}%";
-                CommandCount++;
-            });
+        [RelayCommand]
+        private void IncreaseProgress()
+        {
+            Progress = Math.Min(100, Progress + 10);
+            OneWayText = $"Прогресс увеличен до {Progress}%";
+            CommandCount++;
+        }
 
-            DecreaseProgressCommand = new RelayCommand(_ =>
-            {
-                Progress = Math.Max(0, Progress - 10);
-                OneWayText = $"Прогресс уменьшен до {Progress}%";
-                CommandCount++;
-            });
+        [RelayCommand]
+        private void DecreaseProgress()
+        {
+            Progress = Math.Max(0, Progress - 10);
+            OneWayText = $"Прогресс уменьшен до {Progress}%";
+            CommandCount++;
+        }
 
-            ApplyExplicitBindingCommand = new RelayCommand(parameter =>
+        // Команда с параметром (тип object)
+        [RelayCommand]
+        private void ApplyExplicitBinding(object parameter)
+        {
+            if (parameter is TextBox textBox)
             {
-                var textBox = parameter as TextBox;
-                BindingExpression expression = textBox?.GetBindingExpression(TextBox.TextProperty);
+                BindingExpression expression = textBox.GetBindingExpression(TextBox.TextProperty);
                 expression?.UpdateSource();
-                CommandCount++;
-            });
-
-            ToggleDangerCommand = new RelayCommand(_ =>
-            {
-                IsDangerMode = !IsDangerMode;
-                CommandCount++;
-            });
+            }
+            CommandCount++;
         }
 
-        public ObservableCollection<string> ThemeOptions { get; }
-        public ObservableCollection<string> TriggerItems { get; }
-
-        public ICommand ResetDefaultCommand { get; }
-        public ICommand SaveTwoWayCommand { get; }
-        public ICommand GenerateSessionCodeCommand { get; }
-        public ICommand IncreaseProgressCommand { get; }
-        public ICommand DecreaseProgressCommand { get; }
-        public ICommand ApplyExplicitBindingCommand { get; }
-        public ICommand ToggleDangerCommand { get; }
-
-        public string DefaultInput
+        [RelayCommand]
+        private void ToggleDanger()
         {
-            get => defaultInput;
-            set => SetProperty(ref defaultInput, value);
-        }
-
-        public string DefaultNote
-        {
-            get => defaultNote;
-            set => SetProperty(ref defaultNote, value);
-        }
-
-        public string UserName
-        {
-            get => userName;
-            set => SetProperty(ref userName, value);
-        }
-
-        public int Rating
-        {
-            get => rating;
-            set => SetProperty(ref rating, value);
-        }
-
-        public bool NotificationsEnabled
-        {
-            get => notificationsEnabled;
-            set => SetProperty(ref notificationsEnabled, value);
-        }
-
-        public string SelectedTheme
-        {
-            get => selectedTheme;
-            set => SetProperty(ref selectedTheme, value);
-        }
-
-        public string SessionCode
-        {
-            get => sessionCode;
-            set => SetProperty(ref sessionCode, value);
-        }
-
-        public string CurrentTime
-        {
-            get => currentTime;
-            set => SetProperty(ref currentTime, value);
-        }
-
-        public int Progress
-        {
-            get => progress;
-            set => SetProperty(ref progress, value);
-        }
-
-        public string OneWayText
-        {
-            get => oneWayText;
-            set => SetProperty(ref oneWayText, value);
-        }
-
-        public string SourceFromTarget
-        {
-            get => sourceFromTarget;
-            set => SetProperty(ref sourceFromTarget, value);
-        }
-
-        public string UpdateOnPropertyChanged
-        {
-            get => updateOnPropertyChanged;
-            set => SetProperty(ref updateOnPropertyChanged, value);
-        }
-
-        public string UpdateOnLostFocus
-        {
-            get => updateOnLostFocus;
-            set => SetProperty(ref updateOnLostFocus, value);
-        }
-
-        public string UpdateExplicit
-        {
-            get => updateExplicit;
-            set => SetProperty(ref updateExplicit, value);
-        }
-
-        public int TriggerLevel
-        {
-            get => triggerLevel;
-            set => SetProperty(ref triggerLevel, value);
-        }
-
-        public bool IsDangerMode
-        {
-            get => isDangerMode;
-            set => SetProperty(ref isDangerMode, value);
-        }
-
-        public string SelectedTriggerItem
-        {
-            get => selectedTriggerItem;
-            set => SetProperty(ref selectedTriggerItem, value);
-        }
-
-        public int CommandCount
-        {
-            get => commandCount;
-            set => SetProperty(ref commandCount, value);
+            IsDangerMode = !IsDangerMode;
+            CommandCount++;
         }
     }
 }
